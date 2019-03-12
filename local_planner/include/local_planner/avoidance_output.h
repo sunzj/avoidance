@@ -25,6 +25,7 @@ struct avoidanceOutput {
                            // point in the cloud
 
   Eigen::Vector3f take_off_pose;  // last vehicle position when not armed
+  float starting_height;  // height at which the system starts planning a path
 
   float costmap_direction_e;  // elevation angle of the minimum cost histogram
                               // cell
