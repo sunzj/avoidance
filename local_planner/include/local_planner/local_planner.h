@@ -34,6 +34,37 @@ namespace avoidance {
 class StarPlanner;
 class TreeNode;
 
+/**
+* @brief struct to contain the parameters needed for the model based trajectory
+*planning
+* when MPC_AUTO_MODE is set to 1 (default) then all members are used for the
+*jerk limited
+* trajectory on the flight controller side
+* when MPC_AUTO_MODE is set to 0, only up_accl, down_accl, xy_acc are used on
+*the
+* flight controller side
+**/
+struct ModelParameters {
+  // clang-format off
+  int mpc_auto_mode = 1; // Auto sub-mode - 0: default line tracking, 1 jerk-limited trajectory
+  float jerk_min = 8.0f; // Velocity-based jerk limit
+  float up_acc = 10.0f;   // Maximum vertical acceleration in velocity controlled modes upward
+  float up_vel = 3.0f;   // Maximum vertical ascent velocity
+  float down_acc = 10.0f; // Maximum vertical acceleration in velocity controlled modes down
+  float down_vel = 1.0f; // Maximum vertical descent velocity
+  float xy_acc = 5.0f;  // Maximum horizontal acceleration for auto mode and
+                      // maximum deceleration for manual mode
+  float xy_vel = 1.0f;   // Desired horizontal velocity in mission
+  float takeoff_speed = 1.0f; // Takeoff climb rate
+  float land_speed = 0.7f;   // Landing descend rate
+  // limitations given by sensors
+  float distance_sensor_max_height = 5.0f;
+  float distance_sensor_max_vel = 5.0f;
+
+  float min_takeoff_alt = 2.5f; // Minimum takeoff altitude
+  // clang-format on
+};
+
 class LocalPlanner {
  private:
   bool use_back_off_;
@@ -166,6 +197,8 @@ class LocalPlanner {
 
   // complete_cloud_ contains n complete clouds from the cameras
   std::vector<pcl::PointCloud<pcl::PointXYZ>> complete_cloud_;
+
+  ModelParameters model_params_; // PX4 Firmware paramters
 
   LocalPlanner();
   ~LocalPlanner();
