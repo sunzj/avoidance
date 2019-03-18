@@ -156,7 +156,8 @@ void LocalPlanner::determineStrategy() {
   if (!reach_altitude_) {
     // use half of the goal altitude as an acceptance altitude as done in
     // the Firmware
-    starting_height_ = std::max(goal_.z() / 2.0f, model_params_.min_takeoff_alt);
+    starting_height_ =
+        std::max(goal_.z() / 2.0f, model_params_.min_takeoff_alt);
     ROS_INFO("\033[1;35m[OA] Reach height (%f) first: Go fast\n \033[0m",
              starting_height_);
     waypoint_type_ = reachHeight;

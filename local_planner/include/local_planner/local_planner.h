@@ -197,7 +197,7 @@ class LocalPlanner {
   // complete_cloud_ contains n complete clouds from the cameras
   std::vector<pcl::PointCloud<pcl::PointXYZ>> complete_cloud_;
 
-  ModelParameters model_params_; // PX4 Firmware paramters
+  ModelParameters model_params_;  // PX4 Firmware paramters
 
   LocalPlanner();
   ~LocalPlanner();

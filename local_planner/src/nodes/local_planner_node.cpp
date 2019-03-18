@@ -756,8 +756,10 @@ void LocalPlannerNode::px4ParamsCallback(const mavros_msgs::Param& msg) {
            local_planner_->model_params_.up_vel, msg.value.real);
     local_planner_->model_params_.up_vel = msg.value.real;
   } else if (msg.param_id == "MIS_TAKEOFF_ALT") {
-    printf("model parameter minimum mission takeoff altitude is set from  %f to %f \n",
-           local_planner_->model_params_.min_takeoff_alt, msg.value.real);
+    printf(
+        "model parameter minimum mission takeoff altitude is set from  %f to "
+        "%f \n",
+        local_planner_->model_params_.min_takeoff_alt, msg.value.real);
     local_planner_->model_params_.min_takeoff_alt = msg.value.real;
   }
 }
