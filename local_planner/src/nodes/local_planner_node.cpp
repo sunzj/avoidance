@@ -535,7 +535,9 @@ void LocalPlannerNode::threadFunction() {
       never_run_ = false;
       std::clock_t start_time = std::clock();
       local_planner_->runPlanner();
-      visualizer_.visualizePlannerData(*(local_planner_.get()));
+      visualizer_.visualizePlannerData(
+          *(local_planner_.get()), newest_waypoint_position_,
+          newest_adapted_waypoint_position_, newest_pose_);
       publishLaserScan();
       last_wp_time_ = ros::Time::now();
 

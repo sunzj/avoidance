@@ -22,8 +22,15 @@ class LocalPlannerVisualization {
   * @brief       Main function which calls functions to visualize all planner
   *output ready at the end of one planner iteration
   * @params[in] planner, reference to the planner
+  * @params[in] newest_waypoint_position, last caluclated waypoint (smoothed)
+  * @params[in] newest_adapted_waypoint_position, last caluclated waypoint
+  *(non-smoothed)
   **/
-  void visualizePlannerData(LocalPlanner& planner);
+  void visualizePlannerData(
+      LocalPlanner& planner,
+      const geometry_msgs::Point& newest_waypoint_position,
+      const geometry_msgs::Point& newest_adapted_waypoint_position,
+      const geometry_msgs::PoseStamped& newest_pose);
 
   /**
   * @brief       Visualization of the calculated search tree and the best path
@@ -66,8 +73,17 @@ class LocalPlannerVisualization {
   * @brief       Visualization of the 2D compression of the local pointcloud
   * @params[in]  histogram_image, data for visualization
   * @params[in]  cost_image, data for visualization
+  * @params[in] newest_waypoint_position, last caluclated waypoint (smoothed)
+  * @params[in] newest_adapted_waypoint_position, last caluclated waypoint
+  *(non-smoothed)
+  * @params[in] newest_pose, most recent drone pose
   **/
-  void publishDataImages(const std::vector<uint8_t>& histogram_image_data, const std::vector<uint8_t>& cost_image_data);
+  void publishDataImages(
+      const std::vector<uint8_t>& histogram_image_data,
+      const std::vector<uint8_t>& cost_image_data,
+      const geometry_msgs::Point& newest_waypoint_position,
+      const geometry_msgs::Point& newest_adapted_waypoint_position,
+      const geometry_msgs::PoseStamped& newest_pose);
 
   /**
   * @brief       Visualization of the waypoint calculation

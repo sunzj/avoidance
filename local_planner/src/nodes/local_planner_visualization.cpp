@@ -1,6 +1,7 @@
 #include "local_planner/local_planner_visualization.h"
 
 #include "local_planner/common.h"
+#include "local_planner/planner_functions.h"
 #include "local_planner/tree_node.h"
 
 #include <visualization_msgs/Marker.h>
@@ -43,9 +44,13 @@ void LocalPlannerVisualization::initializeSubscribers(ros::NodeHandle& nh) {
       nh.advertise<visualization_msgs::Marker>("/initial_height", 1);
   histogram_image_pub_ =
       nh.advertise<sensor_msgs::Image>("/histogram_image", 1);
+  cost_image_pub_ = nh.advertise<sensor_msgs::Image>("/cost_image", 1);
 }
 
-void LocalPlannerVisualization::visualizePlannerData(LocalPlanner& planner) {
+void LocalPlannerVisualization::visualizePlannerData(
+    LocalPlanner& planner, const geometry_msgs::Point& newest_waypoint_position,
+    const geometry_msgs::Point& newest_adapted_waypoint_position,
+    const geometry_msgs::PoseStamped& newest_pose) {
   // visualize clouds
   pcl::PointCloud<pcl::PointXYZ> final_cloud, reprojected_points;
   planner.getCloudsForVisualization(final_cloud, reprojected_points);
@@ -70,7 +75,9 @@ void LocalPlannerVisualization::visualizePlannerData(LocalPlanner& planner) {
   publishReachHeight(planner.take_off_pose_, planner.starting_height_);
 
   // publish histogram image
-  publishDataImages(planner.histogram_image_data_, planner.cost_image_data_);
+  publishDataImages(planner.histogram_image_data_, planner.cost_image_data_,
+                    newest_waypoint_position, newest_adapted_waypoint_position,
+                    newest_pose);
 }
 
 void LocalPlannerVisualization::publishTree(
@@ -236,7 +243,12 @@ void LocalPlannerVisualization::publishReachHeight(
   takeoff_pose_pub_.publish(t);
 }
 
-void LocalPlannerVisualization::publishDataImages(const std::vector<uint8_t>& histogram_image_data, const std::vector<uint8_t>& cost_image_data) {
+void LocalPlannerVisualization::publishDataImages(
+    const std::vector<uint8_t>& histogram_image_data,
+    const std::vector<uint8_t>& cost_image_data,
+    const geometry_msgs::Point& newest_waypoint_position,
+    const geometry_msgs::Point& newest_adapted_waypoint_position,
+    const geometry_msgs::PoseStamped& newest_pose) {
   sensor_msgs::Image cost_img;
   cost_img.header.stamp = ros::Time::now();
   cost_img.height = GRID_LENGTH_E;
@@ -248,21 +260,20 @@ void LocalPlannerVisualization::publishDataImages(const std::vector<uint8_t>& hi
 
   // current orientation
   float curr_yaw_fcu_frame =
-      getYawFromQuaternion(toEigen(newest_pose_.pose.orientation));
+      getYawFromQuaternion(toEigen(newest_pose.pose.orientation));
   float yaw_angle_histogram_frame =
-      std::round((-static_cast<float>(curr_yaw_fcu_frame) * 180.0f / M_PI_F)) +
-      90.0f;
+      -static_cast<float>(curr_yaw_fcu_frame) * 180.0f / M_PI_F + 90.0f;
   PolarPoint heading_pol(0, yaw_angle_histogram_frame, 1.0);
   Eigen::Vector2i heading_index = polarToHistogramIndex(heading_pol, ALPHA_RES);
 
   // current setpoint
   PolarPoint waypoint_pol = cartesianToPolar(
-      toEigen(newest_waypoint_position_), toEigen(newest_pose_.pose.position));
+      toEigen(newest_waypoint_position), toEigen(newest_pose.pose.position));
   Eigen::Vector2i waypoint_index =
       polarToHistogramIndex(waypoint_pol, ALPHA_RES);
   PolarPoint adapted_waypoint_pol =
-      cartesianToPolar(toEigen(newest_adapted_waypoint_position_),
-                       toEigen(newest_pose_.pose.position));
+      cartesianToPolar(toEigen(newest_adapted_waypoint_position),
+                       toEigen(newest_pose.pose.position));
   Eigen::Vector2i adapted_waypoint_index =
       polarToHistogramIndex(adapted_waypoint_pol, ALPHA_RES);
 
